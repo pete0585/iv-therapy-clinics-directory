@@ -189,6 +189,18 @@ export async function getNearbyListings(city: string, state: string, excludeSlug
   return (data ?? []) as IvTherapyListing[]
 }
 
+export async function getFeaturedListingsByCity(state: string, city: string, limit = 6): Promise<IvTherapyListing[]> {
+  const supabase = createStaticClient()
+  const { data } = await supabase
+    .from(TABLE)
+    .select('*')
+    .ilike('city', city.replace(/-/g, ' '))
+    .ilike('state', state)
+    .order('listing_tier_rank', { ascending: true })
+    .limit(limit)
+  return (data ?? []) as IvTherapyListing[]
+}
+
 // Admin queries — use service role
 export async function getAllListingsAdmin(page = 1): Promise<{ listings: IvTherapyListing[]; total: number }> {
   const supabase = createStaticClient()
