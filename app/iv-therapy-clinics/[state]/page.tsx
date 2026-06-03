@@ -1,168 +1,133 @@
+import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { notFound } from 'next/navigation'
-import { MapPin, ChevronRight } from 'lucide-react'
-import { getStateListings } from '@/lib/data'
-import { stateAbbrevToName, stateNameToAbbrev, citySlug, stateSlug, formatPriceRange } from '@/lib/utils'
-import type { IvTherapyListing } from '@/lib/types'
+import { ChevronRight } from 'lucide-react'
+import { getStateListings, getStateCityCounts } from '@/lib/data'
+import { getStateName, US_STATES } from '@/lib/utils'
 
 interface PageProps {
   params: Promise<{ state: string }>
 }
 
+export async function generateStaticParams() {
+  return Object.keys(US_STATES).map(abbr => ({ state: abbr.toLowerCase() }))
+}
+
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { state } = await params
-  const stateAbbrev = stateNameToAbbrev(state.replace(/-/g, ' '))
-  const stateName = stateAbbrevToName(stateAbbrev)
+  const stateAbbr = state.toUpperCase()
+  const stateName = getStateName(stateAbbr)
 
   return {
-    title: `IV Therapy Clinics in ${stateName} — Find IV Drip Near You`,
-    description: `Find IV therapy and IV hydration clinics in ${stateName}. Compare treatments, pricing, and medical oversight. Myers Cocktail, NAD+, hangover recovery, and more.`,
+    title: `IV Therapy Clinics in ${stateName} — Find IV Drip Clinics by City`,
+    description: `Directory of IV therapy and IV hydration clinics across ${stateName}. Browse by city. Compare Myers Cocktail, NAD+, hangover recovery, and mobile IV services statewide.`,
     openGraph: {
-      title: `IV Therapy Clinics in ${stateName} | IVTherapyClinicFinder`,
-      description: `Browse all IV therapy clinics in ${stateName}. Filter by treatment, mobile service, and more.`,
+      url: `https://ivtherapyclinicfinder.com/iv-therapy-clinics/${state}`,
     },
   }
 }
 
 export default async function StatePage({ params }: PageProps) {
   const { state } = await params
-  const stateAbbrev = stateNameToAbbrev(state.replace(/-/g, ' '))
-  const stateName = stateAbbrevToName(stateAbbrev)
+  const stateAbbr = state.toUpperCase()
 
-  if (!stateAbbrev || stateAbbrev.length !== 2) notFound()
+  if (!US_STATES[stateAbbr]) notFound()
 
-  const listings = await getStateListings(stateAbbrev).catch(() => [])
-  if (listings.length === 0) notFound()
-
-  // Group by city
-  const cityMap: Record<string, IvTherapyListing[]> = {}
-  for (const listing of listings) {
-    const key = listing.city
-    if (!cityMap[key]) cityMap[key] = []
-    cityMap[key].push(listing)
-  }
-  const cities = Object.entries(cityMap).sort((a, b) => b[1].length - a[1].length)
-
-  const jsonLd = {
-    '@context': 'https://schema.org',
-    '@type': 'BreadcrumbList',
-    itemListElement: [
-      { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://www.ivtherapyclinicfinder.com' },
-      { '@type': 'ListItem', position: 2, name: 'IV Therapy Clinics', item: 'https://www.ivtherapyclinicfinder.com/iv-therapy-clinics' },
-      { '@type': 'ListItem', position: 3, name: stateName },
-    ],
-  }
+  const stateName = getStateName(stateAbbr)
+  const [stateListings, cityCounts] = await Promise.all([
+    getStateListings(stateAbbr),
+    getStateCityCounts(stateAbbr),
+  ])
 
   return (
-    <div>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      {/* Breadcrumb */}
+      <nav className="flex items-center gap-1 text-sm text-brand-steel mb-6" aria-label="Breadcrumb">
+        <Link href="/" className="hover:text-brand-teal">Home</Link>
+        <ChevronRight className="w-4 h-4" />
+        <Link href="/listings" className="hover:text-brand-teal">IV Therapy Clinics</Link>
+        <ChevronRight className="w-4 h-4" />
+        <span className="text-brand-navy font-medium">{stateName}</span>
+      </nav>
 
-      {/* Header */}
-      <section className="bg-brand-navy text-white py-10">
-        <div className="page-container">
-          <nav className="flex items-center gap-2 text-sm text-gray-400 mb-4">
-            <Link href="/" className="hover:text-brand-cyan">Home</Link>
-            <ChevronRight className="w-4 h-4" aria-label="" />
-            <Link href="/iv-therapy-clinics" className="hover:text-brand-cyan">IV Therapy Clinics</Link>
-            <ChevronRight className="w-4 h-4" aria-label="" />
-            <span className="text-white">{stateName}</span>
-          </nav>
-          <h1 className="text-3xl md:text-4xl font-bold mb-3">
-            IV Therapy Clinics in {stateName}
-          </h1>
-          <p className="text-gray-300">
-            {listings.length.toLocaleString()} IV therapy {listings.length === 1 ? 'clinic' : 'clinics'} across {cities.length} {cities.length === 1 ? 'city' : 'cities'} in {stateName}
-          </p>
+      <h1 className="text-3xl font-bold text-brand-navy mb-2">
+        {stateName} IV Therapy Clinic Directory
+      </h1>
+      <p className="text-brand-steel mb-8 max-w-2xl">
+        {stateListings.length > 0
+          ? `${stateListings.length} IV therapy ${stateListings.length === 1 ? 'clinic' : 'clinics'} listed across ${stateName}. Browse by city below.`
+          : `IV therapy clinics across ${stateName}. Browse by city or add your clinic free.`}
+      </p>
+
+      {/* City grid */}
+      {cityCounts.length > 0 && (
+        <div className="mb-12">
+          <h2 className="text-lg font-bold text-brand-navy mb-4">Cities in {stateName}</h2>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+            {cityCounts.map(({ city, count }) => {
+              const citySlug = city.toLowerCase().replace(/\s+/g, '-')
+              const cityName = city.replace(/\b\w/g, c => c.toUpperCase())
+              return (
+                <Link
+                  key={city}
+                  href={`/iv-therapy-clinics/${state.toLowerCase()}/${citySlug}`}
+                  className="flex items-center justify-between bg-white rounded-lg border border-brand-light-2 px-4 py-3 hover:border-brand-teal hover:shadow-sm transition-all group"
+                >
+                  <span className="text-brand-navy font-medium group-hover:text-brand-teal text-sm">{cityName}</span>
+                  <span className="text-brand-steel text-xs">{count} {count === 1 ? 'clinic' : 'clinics'}</span>
+                </Link>
+              )
+            })}
+          </div>
         </div>
-      </section>
+      )}
 
-      {/* City index */}
-      <section className="py-10 bg-white">
-        <div className="page-container">
-          <h2 className="section-heading mb-2">Browse by City in {stateName}</h2>
-          <p className="text-gray-600 mb-8">Select a city to see IV therapy clinics near you</p>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
-            {cities.map(([city, cityListings]) => (
-              <Link
-                key={city}
-                href={`/iv-therapy-clinics/${state}/${citySlug(city)}`}
-                className="flex items-center justify-between p-3 rounded-xl border border-gray-200 bg-white hover:border-brand-cyan hover:bg-brand-cyan-light transition-all group"
-              >
-                <span className="font-medium text-sm text-gray-900 group-hover:text-brand-cyan-dark truncate">{city}</span>
-                <span className="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full flex-shrink-0 ml-1">{cityListings.length}</span>
-              </Link>
+      {/* Featured clinics preview */}
+      {stateListings.length > 0 && (
+        <div className="mb-12">
+          <h2 className="text-lg font-bold text-brand-navy mb-4">Featured Clinics in {stateName}</h2>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {stateListings.slice(0, 6).map(listing => (
+              <div key={listing.id} className="bg-white rounded-xl border border-brand-light-2 p-5">
+                <h3 className="font-semibold text-brand-navy text-sm mb-1">{listing.business_name}</h3>
+                <p className="text-brand-steel text-xs mb-3">{listing.city}, {listing.state}</p>
+                <Link
+                  href={`/iv-therapy-clinics/${listing.state.toLowerCase()}/${listing.city.toLowerCase().replace(/\s+/g, '-')}/${listing.slug}`}
+                  className="text-brand-teal text-xs font-medium hover:underline"
+                >
+                  View listing →
+                </Link>
+              </div>
             ))}
           </div>
         </div>
-      </section>
-
-      {/* Featured listings in state */}
-      {listings.some(l => l.listing_tier !== 'free') && (
-        <section className="py-10 bg-gray-50">
-          <div className="page-container">
-            <h2 className="section-heading mb-6">Featured Clinics in {stateName}</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-              {listings
-                .filter(l => l.listing_tier !== 'free')
-                .slice(0, 6)
-                .map((listing) => (
-                  <StateListingCard key={listing.id} listing={listing} stateParam={state} />
-                ))}
-            </div>
-          </div>
-        </section>
       )}
 
-      {/* SEO content */}
-      <section className="py-10 bg-white">
-        <div className="page-container">
-          <div className="max-w-3xl">
-            <h2 className="section-heading mb-4">IV Therapy in {stateName}</h2>
-            <div className="prose prose-gray text-sm text-gray-600 space-y-3">
-              <p>
-                {stateName} has a growing IV therapy market with clinics offering everything from basic hydration and hangover recovery to advanced NAD+ and Myers Cocktail drips.
-                Whether you&apos;re a biohacker looking for weekly optimization sessions, an athlete recovering from training, or someone who needs fast hangover relief,
-                IVTherapyClinicFinder helps you find the right clinic in {stateName}.
-              </p>
-              <p>
-                Use our filters to find medically supervised IV therapy in {stateName} — many patients want to know whether a clinic is MD-supervised, NP-led,
-                or RN-administered before booking. You can also filter for mobile IV services in {stateName} if you prefer treatment at home, your hotel, or your office.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-    </div>
-  )
-}
-
-function StateListingCard({ listing, stateParam }: { listing: IvTherapyListing; stateParam: string }) {
-  const price = formatPriceRange(listing.price_low, listing.price_high)
-  return (
-    <Link
-      href={`/iv-therapy-clinics/${stateParam}/${citySlug(listing.city)}/${listing.slug}`}
-      className="card p-5 block hover:border-brand-cyan"
-    >
-      <div className="flex items-start justify-between gap-2 mb-2">
-        <div className="flex-1 min-w-0">
-          <h3 className="font-bold text-gray-900 text-sm leading-tight line-clamp-2">{listing.name}</h3>
-          <div className="flex items-center gap-1 text-xs text-gray-500 mt-1">
-            <MapPin className="w-3 h-3" aria-label="Location" />
-            <span>{listing.city}, {listing.state}</span>
-          </div>
-        </div>
-        {listing.listing_tier === 'featured' && <span className="badge-featured">Featured</span>}
-        {listing.listing_tier === 'verified' && <span className="badge-verified">Verified</span>}
+      {/* What to know callout */}
+      <div className="bg-brand-teal-light rounded-xl p-6 mb-8 border border-brand-teal/20">
+        <h2 className="font-bold text-brand-navy mb-3">What to Look for in a {stateName} IV Therapy Clinic</h2>
+        <ul className="space-y-2 text-sm text-brand-slate">
+          <li>✓ Medical oversight — a physician or NP should sign off on every patient's protocol</li>
+          <li>✓ Registered nurse administering the IV — not an untrained tech</li>
+          <li>✓ Health intake before your first session — not just a credit card swipe</li>
+          <li>✓ Transparent pricing — if a clinic won&apos;t post prices, that&apos;s a red flag</li>
+          <li>✓ FDA-approved sterile compounded solutions — ask where ingredients are sourced</li>
+        </ul>
       </div>
-      {listing.services_offered && listing.services_offered.length > 0 && (
-        <div className="flex flex-wrap gap-1 mb-2">
-          {listing.services_offered.slice(0, 3).map(s => (
-            <span key={s} className="badge-treatment">{s}</span>
-          ))}
-        </div>
-      )}
-      {price && <div className="text-xs font-semibold text-brand-emerald">{price}</div>}
-    </Link>
+
+      {/* CTA */}
+      <div className="bg-brand-navy text-white rounded-xl p-8 text-center">
+        <h2 className="font-bold text-xl mb-2">Own an IV Therapy Clinic in {stateName}?</h2>
+        <p className="text-blue-200 text-sm mb-5">
+          Add your clinic free and start appearing in search results for IV therapy in your city.
+        </p>
+        <Link
+          href="/submit"
+          className="inline-block bg-brand-teal hover:bg-brand-teal-dark text-white font-semibold px-8 py-3 rounded-lg transition-colors text-sm"
+        >
+          Add Free Listing →
+        </Link>
+      </div>
+    </div>
   )
 }
