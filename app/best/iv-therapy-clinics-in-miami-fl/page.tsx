@@ -69,7 +69,7 @@ export default async function BestIVTherapyMiamiPage() {
                     {index + 1}
                   </span>
                   <div className="flex-1">
-                    <h3 className="font-bold text-brand-navy mb-1">{listing.business_name}</h3>
+                    <h3 className="font-bold text-brand-navy mb-1">{listing.name}</h3>
                     <p className="text-brand-steel text-sm mb-2">{listing.address}, {listing.city}, {listing.state}</p>
                     {listing.services_offered && listing.services_offered.length > 0 && (
                       <div className="flex flex-wrap gap-1.5 mb-3">
