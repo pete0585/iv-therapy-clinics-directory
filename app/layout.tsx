@@ -8,7 +8,7 @@ export const metadata: Metadata = {
     template: '%s | IVTherapyClinicFinder',
   },
   description: 'Find IV therapy and IV hydration clinics near you. Compare treatments, pricing, and medical oversight. Myers Cocktail, NAD+, hangover recovery, and more.',
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? 'https://www.ivtherapyclinicfinder.com'),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? 'https://ivtherapyclinicfinder.com'),
   openGraph: {
     siteName: 'IVTherapyClinicFinder',
     type: 'website',
