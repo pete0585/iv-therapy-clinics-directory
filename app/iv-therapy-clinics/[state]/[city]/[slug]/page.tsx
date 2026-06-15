@@ -5,6 +5,8 @@ import { MapPin, Phone, Globe, Clock, ChevronRight, CheckCircle, Star, Droplets 
 import { getListingBySlug, getNearbyListings } from '@/lib/data'
 import { formatPhone, stateAbbrevToName, stateNameToAbbrev, titleCase, stateSlug, citySlug, formatPriceRange, formatMedicalOversight } from '@/lib/utils'
 import type { IvTherapyListing } from '@/lib/types'
+import { createClient } from '@/lib/supabase/server'
+import { ViewTracker } from '@/components/ViewTracker'
 
 interface PageProps {
   params: Promise<{ state: string; city: string; slug: string }>
@@ -38,6 +40,13 @@ export default async function ListingPage({ params }: PageProps) {
   const cityName = titleCase(city.replace(/-/g, ' '))
 
   const nearby = await getNearbyListings(listing.city, listing.state, slug, 4).catch(() => [])
+
+  const isClaimed = listing.listing_tier !== 'unclaimed' && listing.listing_tier != null
+  const monthStart = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString()
+  const supabase = await createClient()
+  const { count: viewCount } = await supabase.from('listing_views').select('*', { count: 'exact', head: true })
+    .eq('directory_slug', 'iv-therapy-clinics').eq('listing_id', String(listing.id)).gte('viewed_at', monthStart)
+  const monthlyViews = viewCount ?? 0
 
   const price = formatPriceRange(listing.price_low, listing.price_high)
   const oversight = listing.medical_oversight ? formatMedicalOversight(listing.medical_oversight) : null
@@ -117,8 +126,16 @@ export default async function ListingPage({ params }: PageProps) {
                 </div>
               </div>
 
-              {listing.description && (
+              {isClaimed && listing.description && (
                 <p className="text-gray-600 leading-relaxed mb-4">{listing.description}</p>
+              )}
+              {!isClaimed && (
+                <div className='rounded-lg border border-gray-200 bg-gray-50 p-4 text-center'>
+                  <p className='text-sm text-gray-500'>Phone, website, and bio are only visible after this provider claims their listing.</p>
+                  <a href={`/claim/${listing.id}`} className='mt-2 inline-block text-sm font-medium text-blue-600 hover:underline'>
+                    Is this you? Claim your free profile →
+                  </a>
+                </div>
               )}
 
               {/* Key stats */}
@@ -143,6 +160,17 @@ export default async function ListingPage({ params }: PageProps) {
                 )}
               </div>
             </div>
+
+            {isClaimed && (
+              <div className='mb-6 rounded-xl border border-blue-200 bg-blue-50 p-4'>
+                <p className='text-xs font-semibold uppercase tracking-wide text-blue-600'>Profile Activity</p>
+                <p className='mt-1 text-3xl font-bold text-blue-900'>{monthlyViews}</p>
+                <p className='text-sm text-blue-700'>people viewed your profile this month</p>
+                {listing.listing_tier === 'free' && (
+                  <p className='mt-2 text-xs text-blue-600'>0 could contact you. <a href={`/claim/${listing.id}?upgrade=true`} className='underline font-medium'>Upgrade to be reachable →</a></p>
+                )}
+              </div>
+            )}
 
             {/* Treatments */}
             {listing.services_offered && listing.services_offered.length > 0 && (
@@ -198,7 +226,7 @@ export default async function ListingPage({ params }: PageProps) {
             <div className="bg-white rounded-xl border border-gray-200 p-5 mb-5 sticky top-20">
               <h2 className="font-bold text-brand-navy mb-4">Contact & Booking</h2>
               <div className="space-y-3">
-                {listing.phone && (
+                {isClaimed && (listing.phone && (
                   <a
                     href={`tel:${listing.phone}`}
                     className="flex items-center gap-3 p-3 bg-brand-navy rounded-xl text-white hover:bg-brand-navy-dark transition-colors"
@@ -209,7 +237,7 @@ export default async function ListingPage({ params }: PageProps) {
                       <div className="font-semibold text-sm">{formatPhone(listing.phone)}</div>
                     </div>
                   </a>
-                )}
+                ))}
                 {listing.booking_url && (
                   <a
                     href={listing.booking_url}
@@ -220,7 +248,7 @@ export default async function ListingPage({ params }: PageProps) {
                     Book Online
                   </a>
                 )}
-                {listing.website && (
+                {isClaimed && (listing.website && (
                   <a
                     href={listing.website}
                     target="_blank"
@@ -230,7 +258,7 @@ export default async function ListingPage({ params }: PageProps) {
                     <Globe className="w-4 h-4 text-brand-cyan flex-shrink-0" aria-label="Website" />
                     <span className="text-brand-cyan font-medium truncate">Visit Website</span>
                   </a>
-                )}
+                ))}
               </div>
 
               {listing.address && (
@@ -275,6 +303,7 @@ export default async function ListingPage({ params }: PageProps) {
             </div>
           </section>
         )}
+        <ViewTracker listingId={String(listing.id)} directorySlug='iv-therapy-clinics' />
       </div>
     </div>
   )

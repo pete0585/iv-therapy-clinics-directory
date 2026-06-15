@@ -30,7 +30,12 @@ export default async function ClaimPage({ params, searchParams }: PageProps) {
 
   // Already verified — show upgrade options
   if (verified === 'true' && listing.is_claimed) {
-    return <UpgradePage listing={listing} />
+    const { createServiceClient: createSvc } = await import('@/lib/supabase/server')
+    const svcClient = await createSvc()
+    const mStart = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString()
+    const { count: vc } = await svcClient.from('listing_views').select('*', { count: 'exact', head: true })
+      .eq('directory_slug', 'iv-therapy-clinics').eq('listing_id', String(listing.id)).gte('viewed_at', mStart)
+    return <UpgradePage listing={listing} monthlyViews={vc ?? 0} />
   }
 
   return (
@@ -120,7 +125,7 @@ async function TokenVerifyPage({ id, token, listingName }: { id: string; token: 
   )
 }
 
-function UpgradePage({ listing }: { listing: { id: string; name: string; listing_tier: string } }) {
+function UpgradePage({ listing, monthlyViews }: { listing: { id: string; name: string; listing_tier: string }; monthlyViews: number }) {
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="bg-brand-navy text-white py-10">
@@ -131,6 +136,19 @@ function UpgradePage({ listing }: { listing: { id: string; name: string; listing
       </div>
       <div className="page-container py-10">
         <div className="max-w-2xl">
+          <div className='text-center mb-6'>
+            <div className='text-5xl font-bold text-gray-900'>{monthlyViews ?? 0}</div>
+            <div className='text-gray-500 mt-1'>people viewed your profile this month</div>
+            <div className='mt-3 text-red-600 font-semibold'>0 could contact you — your phone and website are hidden</div>
+          </div>
+          <div className='space-y-3 mb-6 text-left'>
+            {[['Your phone number visible to searchers','They can call you directly'],['Your website linked','Drive traffic to your practice site'],['Your full bio displayed','Build trust before they reach out'],['Verified badge','Stand out from unclaimed profiles']].map(([title, sub]) => (
+              <div key={title} className='flex items-start gap-3'>
+                <span className='text-green-500 text-lg'>✓</span>
+                <div><div className='font-medium'>{title}</div><div className='text-sm text-gray-500'>{sub}</div></div>
+              </div>
+            ))}
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Verified */}
             <div className="bg-white rounded-xl border-2 border-brand-cyan p-6">
