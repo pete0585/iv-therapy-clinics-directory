@@ -16,7 +16,17 @@ jobs:
       - name: Type check
         run: npx tsc --noEmit
       - name: Deploy to Vercel Production
-        run: npx vercel --prod --yes
+        run: |
+          output=$(npx vercel --prod --yes 2>&1)
+          exit_code=$?
+          echo "$output"
+          if [ $exit_code -ne 0 ]; then
+            if echo "$output" | grep -q "api-deployments-free-per-day"; then
+              echo "Vercel 100/day rate limit hit — site is already live, skipping."
+              exit 0
+            fi
+            exit $exit_code
+          fi
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_API_TOKEN }}
           VERCEL_PROJECT_ID: prj_sxG3234dI5mXNNzzhNB9fj54hp3c
