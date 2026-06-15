@@ -26,7 +26,7 @@ export async function POST(req: NextRequest) {
     if (!listingId || !tier) return NextResponse.json({ received: true })
 
     await supabase
-      .from('iv_therapy_clinics_listings')
+      .from('iv_therapy_listings')
       .update({
         listing_tier: tier,
         listing_tier_rank: tier === 'featured' ? 1 : 2,
@@ -53,7 +53,7 @@ export async function POST(req: NextRequest) {
     const listingId = subscription.metadata?.listing_id
     if (listingId) {
       await supabase
-        .from('iv_therapy_clinics_listings')
+        .from('iv_therapy_listings')
         .update({ listing_tier: 'free', listing_tier_rank: 0 })
         .eq('id', listingId)
     }
@@ -64,7 +64,7 @@ export async function POST(req: NextRequest) {
     const subId = invoice.subscription as string | undefined
     if (subId) {
       await supabase
-        .from('iv_therapy_clinics_listings')
+        .from('iv_therapy_listings')
         .update({ listing_tier: 'free', listing_tier_rank: 0 })
         .eq('stripe_subscription_id', subId)
     }
