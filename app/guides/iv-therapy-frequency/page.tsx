@@ -29,8 +29,8 @@ const FAQ = [
     a: 'Too-frequent IV therapy can cause: vein damage (phlebitis — inflammation and scarring from repeated catheter placement), infection risk at insertion sites, and in rare cases with very high-dose vitamin C protocols, kidney strain. The biggest practical risk with frequent IV therapy is the cost — at $100–$300+ per session, weekly sessions add up to $400–$1,200/month. For most wellness goals, identifying the right frequency (not always the most frequent) is part of working with a qualified IV therapy provider.',
   },
   {
-    q: 'Do I need a doctor's order to get IV therapy?',
-    a: 'This depends on your state. In most states, IV therapy clinics operate under a medical director who writes standing orders for standard wellness protocols — you don't need a separate doctor's appointment. However, if you want IV therapy for a specific medical condition, you should discuss it with your primary care provider. Individuals with kidney disease, heart disease, or diabetes should always consult their physician before starting IV therapy, as these conditions affect how your body handles fluids and vitamins.',
+    q: "Do I need a doctor's order to get IV therapy?",
+    a: `This depends on your state. In most states, IV therapy clinics operate under a medical director who writes standing orders for standard wellness protocols — you don't need a separate doctor's appointment. However, if you want IV therapy for a specific medical condition, you should discuss it with your primary care provider. Individuals with kidney disease, heart disease, or diabetes should always consult their physician before starting IV therapy, as these conditions affect how your body handles fluids and vitamins.`,
   },
   {
     q: 'Does IV therapy frequency differ for athletes?',
@@ -38,7 +38,7 @@ const FAQ = [
   },
 ]
 
-FREQUENCY_ROWS = [
+const FREQUENCY_ROWS = [
   { goal: 'Hangover / acute recovery', frequency: 'As needed (single session)', notes: 'One-time per event; no scheduled protocol needed' },
   { goal: 'Pre/post travel recovery', frequency: 'As needed', notes: 'Jet lag, immune support during travel' },
   { goal: 'General wellness maintenance', frequency: 'Monthly', notes: 'Most common wellness protocol frequency' },

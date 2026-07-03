@@ -18,7 +18,7 @@ export const revalidate = 86400
 const FAQ = [
   {
     q: 'What is in a hangover IV drip?',
-    a: 'A hangover IV drip typically contains: 1 liter of normal saline or lactated Ringer's solution (for hydration), B-complex vitamins (B1, B2, B3, B5, B6) and/or B12, magnesium sulfate (for headache and muscle tension), vitamin C, and optional add-ons like ondansetron (Zofran) for nausea, ketorolac (Toradol) for pain, or glutathione for antioxidant support. The specific combination varies by clinic. Many clinics use a proprietary "Myers' Cocktail" base with modifications.',
+    a: `A hangover IV drip typically contains: 1 liter of normal saline or lactated Ringer's solution (for hydration), B-complex vitamins (B1, B2, B3, B5, B6) and/or B12, magnesium sulfate (for headache and muscle tension), vitamin C, and optional add-ons like ondansetron (Zofran) for nausea, ketorolac (Toradol) for pain, or glutathione for antioxidant support. The specific combination varies by clinic. Many clinics use a proprietary "Myers' Cocktail" base with modifications.`,
   },
   {
     q: 'Does IV therapy actually cure a hangover faster than drinking water?',
@@ -38,8 +38,8 @@ const FAQ = [
   },
 ]
 
-INGREDIENTS = [
-  { name: 'Normal Saline (1L)', purpose: 'Fluid replacement — replaces the hydration lost to alcohol's diuretic effect and any vomiting', evidence: 'Established' },
+const INGREDIENTS = [
+  { name: 'Normal Saline (1L)', purpose: `Fluid replacement — replaces the hydration lost to alcohol's diuretic effect and any vomiting`, evidence: 'Established' },
   { name: 'B-Complex Vitamins', purpose: 'Replenishes B vitamins depleted by alcohol metabolism; supports liver enzyme function', evidence: 'Theoretical; commonly included' },
   { name: 'B12', purpose: 'Energy support; often marketed as "energy boost" — effect is primarily noticeable in deficient individuals', evidence: 'Modest in non-deficient' },
   { name: 'Magnesium', purpose: 'Headache relief; alcohol depletes magnesium', evidence: 'Some evidence for headache' },
@@ -116,7 +116,7 @@ export default function IVTherapyHangoverPage() {
                   <h3 className="font-bold text-gray-800 mb-3">Good candidates</h3>
                   <ul className="space-y-2">
                     {[
-                      'Active vomiting (can't keep oral fluids down)',
+                      "Active vomiting (can't keep oral fluids down)",
                       'Severe dehydration symptoms (dizziness, confusion)',
                       'Significant work or event within a few hours',
                       'History of hangover-triggered migraines',
