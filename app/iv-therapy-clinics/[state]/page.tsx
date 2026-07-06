@@ -1,10 +1,17 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { notFound } from 'next/navigation'
+import { notFound, redirect } from 'next/navigation'
 import { MapPin, ChevronRight } from 'lucide-react'
 import { getStateListings } from '@/lib/data'
 import { stateAbbrevToName, stateNameToAbbrev, citySlug, stateSlug, formatPriceRange } from '@/lib/utils'
 import type { IvTherapyListing } from '@/lib/types'
+
+const VALID_STATE_ABBREVS = new Set([
+  'AL','AK','AZ','AR','CA','CO','CT','DE','FL','GA','HI','ID','IL','IN','IA',
+  'KS','KY','LA','ME','MD','MA','MI','MN','MS','MO','MT','NE','NV','NH','NJ',
+  'NM','NY','NC','ND','OH','OK','OR','PA','RI','SC','SD','TN','TX','UT','VT',
+  'VA','WA','WV','WI','WY','DC',
+])
 
 interface PageProps {
   params: Promise<{ state: string }>
@@ -13,6 +20,9 @@ interface PageProps {
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { state } = await params
   const stateAbbrev = stateNameToAbbrev(state.replace(/-/g, ' '))
+  if (!VALID_STATE_ABBREVS.has(stateAbbrev)) {
+    return { title: 'IV Therapy Clinic | IVTherapyClinicFinder' }
+  }
   const stateName = stateAbbrevToName(stateAbbrev)
 
   return {
@@ -30,7 +40,10 @@ export default async function StatePage({ params }: PageProps) {
   const stateAbbrev = stateNameToAbbrev(state.replace(/-/g, ' '))
   const stateName = stateAbbrevToName(stateAbbrev)
 
-  if (!stateAbbrev || stateAbbrev.length !== 2) notFound()
+  if (!VALID_STATE_ABBREVS.has(stateAbbrev)) {
+    // param is a listing slug, not a state name — redirect to the slug handler
+    redirect(`/listing/${state}`)
+  }
 
   const listings = await getStateListings(stateAbbrev).catch(() => [])
   if (listings.length === 0) notFound()
