@@ -5,7 +5,7 @@ import { getFeaturedListingsByCity } from '@/lib/data'
 
 export const metadata: Metadata = {
   title: 'Best IV Therapy Clinics in Denver, CO — Top IV Drip Services',
-  description: 'The best IV therapy clinics in Denver, CO. From LoDo hydration lounges to Cherry Creek concierge IV services, Myers' Cocktail, altitude adjustment IVs, and mobile drip delivery across the Front Range.',
+  description: 'The best IV therapy clinics in Denver, CO. From LoDo hydration lounges to Cherry Creek concierge IV services, Myers\' Cocktail, altitude adjustment IVs, and mobile drip delivery across the Front Range.',
   alternates: { canonical: 'https://www.ivtherapyclinicfinder.com/best/iv-therapy-clinics-in-denver-co' },
 }
 

@@ -5,7 +5,7 @@ import { getFeaturedListingsByCity } from '@/lib/data'
 
 export const metadata: Metadata = {
   title: 'Best IV Therapy Clinics in Phoenix, AZ — Top IV Drip Services',
-  description: 'The best IV therapy clinics in Phoenix and Scottsdale, AZ. From Scottsdale wellness centers to Phoenix hydration lounges, Myers' Cocktail, NAD+, and mobile IV delivery across the Valley.',
+  description: 'The best IV therapy clinics in Phoenix and Scottsdale, AZ. From Scottsdale wellness centers to Phoenix hydration lounges, Myers\' Cocktail, NAD+, and mobile IV delivery across the Valley.',
   alternates: { canonical: 'https://www.ivtherapyclinicfinder.com/best/iv-therapy-clinics-in-phoenix-az' },
 }
 
