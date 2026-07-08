@@ -5,7 +5,7 @@ import { getFeaturedListingsByCity } from '@/lib/data'
 
 export const metadata: Metadata = {
   title: 'Best IV Therapy Clinics in Chicago, IL — Top IV Drip Services',
-  description: 'The best IV therapy clinics in Chicago, IL. From River North IV lounges to Loop concierge drip services, Myers' Cocktail, NAD+, and mobile IV delivery across Chicagoland.',
+  description: 'The best IV therapy clinics in Chicago, IL. From River North IV lounges to Loop concierge drip services, Myers\' Cocktail, NAD+, and mobile IV delivery across Chicagoland.',
   alternates: { canonical: 'https://www.ivtherapyclinicfinder.com/best/iv-therapy-clinics-in-chicago-il' },
 }
 

@@ -5,7 +5,7 @@ import { getFeaturedListingsByCity } from '@/lib/data'
 
 export const metadata: Metadata = {
   title: 'Best IV Therapy Clinics in Dallas, TX — Top IV Drip Services',
-  description: 'The best IV therapy clinics in Dallas, TX. From Uptown IV lounges to Plano concierge drip services, Myers' Cocktail, NAD+, and mobile IV delivery across DFW.',
+  description: 'The best IV therapy clinics in Dallas, TX. From Uptown IV lounges to Plano concierge drip services, Myers\' Cocktail, NAD+, and mobile IV delivery across DFW.',
   alternates: { canonical: 'https://www.ivtherapyclinicfinder.com/best/iv-therapy-clinics-in-dallas-tx' },
 }
 
