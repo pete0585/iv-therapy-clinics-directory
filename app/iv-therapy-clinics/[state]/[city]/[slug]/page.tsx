@@ -66,8 +66,8 @@ export default async function ListingPage({ params }: PageProps) {
       postalCode: listing.zip ?? '',
       addressCountry: 'US',
     } : undefined,
-    telephone: listing.phone ?? undefined,
-    url: listing.website ?? undefined,
+    telephone: isClaimed ? (listing.phone ?? undefined) : undefined,
+    url: isClaimed ? (listing.website ?? undefined) : undefined,
     medicalSpecialty: 'IV Therapy',
     breadcrumb: {
       '@type': 'BreadcrumbList',
