@@ -8,7 +8,7 @@ import { TREATMENT_SLUGS } from '@/lib/types'
 
 export const metadata: Metadata = {
   title: 'IV Therapy Clinic Finder — Find IV Drip Clinics Near You',
-  description: 'Find IV therapy and IV hydration clinics near you. Compare treatments, pricing, and medical oversight. Myers Cocktail, NAD+, hangover recovery, and more — free to search.',
+  description: 'Find IV therapy and hydration clinics near you. Compare treatments, pricing, and medical oversight. Myers Cocktail, NAD+, hangover recovery, and more.',
   openGraph: {
     title: 'Find an IV Therapy Clinic Near You | IVTherapyClinicFinder',
     description: 'The most complete directory of IV therapy clinics in the US. Compare treatments, pricing, and find medically supervised providers.',
