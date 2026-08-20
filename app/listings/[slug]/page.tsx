@@ -39,7 +39,7 @@ export default async function ListingPage({ params }: PageProps) {
     '@context': 'https://schema.org',
     '@type': 'MedicalBusiness',
     name: listing.name,
-    description: listing.bio ?? undefined,
+    description: listing.description ?? undefined,
     telephone: isClaimed ? (listing.phone ?? undefined) : undefined,
     url: isClaimed ? (listing.website ?? undefined) : undefined,
     address: {
@@ -99,22 +99,20 @@ export default async function ListingPage({ params }: PageProps) {
                 {listing.is_mobile && (
                   <span className="px-2.5 py-1 text-xs font-medium bg-blue-50 text-blue-700 rounded-full">Mobile IV</span>
                 )}
-                {listing.accepts_insurance && (
-                  <span className="px-2.5 py-1 text-xs font-medium bg-green-50 text-green-700 rounded-full">Insurance Accepted</span>
-                )}
+
                 {listing.medical_oversight && (
                   <span className="px-2.5 py-1 text-xs font-medium bg-purple-50 text-purple-700 rounded-full">Medical Oversight</span>
                 )}
               </div>
             </div>
 
-            {isClaimed && listing.bio && (
+            {isClaimed && listing.description && (
               <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
                 <h2 className="text-lg font-bold text-gray-900 mb-3 flex items-center gap-2">
                   <Droplets className="w-5 h-5 text-teal-500" />
                   About This Clinic
                 </h2>
-                <p className="text-gray-700 leading-relaxed">{listing.bio}</p>
+                <p className="text-gray-700 leading-relaxed">{listing.description}</p>
               </div>
             )}
 
@@ -196,13 +194,13 @@ export default async function ListingPage({ params }: PageProps) {
               )}
             </div>
 
-            {listing.hours && (
+            {listing.hours_text && (
               <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
                 <h2 className="font-bold text-gray-900 mb-3 text-sm flex items-center gap-2">
                   <Clock className="w-4 h-4" />
                   Hours
                 </h2>
-                <p className="text-sm text-gray-700 whitespace-pre-line">{listing.hours}</p>
+                <p className="text-sm text-gray-700 whitespace-pre-line">{listing.hours_text}</p>
               </div>
             )}
           </div>
