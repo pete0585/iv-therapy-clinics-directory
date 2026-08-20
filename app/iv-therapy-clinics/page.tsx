@@ -178,7 +178,7 @@ function ListingCard({ listing }: { listing: IvTherapyListing }) {
 
   return (
     <Link
-      href={`/iv-therapy-clinics/${stateSlug(listing.state)}/${citySlug(listing.city)}/${listing.slug}`}
+      href={`/listings/${listing.slug}`}
       className="card p-5 block hover:border-brand-cyan"
     >
       <div className="flex items-start justify-between gap-2 mb-3">
