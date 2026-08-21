@@ -52,7 +52,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       }
 
       urls.push({
-        url: `${SITE_URL}/iv-therapy-clinics/${stateParam}/${cityParam}/${listing.slug}`,
+        url: `${SITE_URL}/listings/${listing.slug}`,
         lastModified: new Date(listing.updated_at),
         changeFrequency: 'monthly',
         priority: 0.6,
