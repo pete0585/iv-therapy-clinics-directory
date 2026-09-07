@@ -2,10 +2,12 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { ArrowRight, Star } from 'lucide-react'
 import { getFeaturedListingsByCity } from '@/lib/data'
+import { cityPageCanonical } from '@/lib/site'
 
 export const metadata: Metadata = {
   title: 'Best IV Therapy Clinics in Las Vegas, NV — Top-Rated Hangover Drips & More',
   description: 'The best IV therapy clinics in Las Vegas, NV. 24-hour mobile services, hangover recovery, NAD+, and hotel delivery for the Strip and beyond.',
+  alternates: { canonical: cityPageCanonical('iv-therapy-clinics-in-las-vegas-nv') },
 }
 
 export default async function BestIVTherapyLasVegasPage() {

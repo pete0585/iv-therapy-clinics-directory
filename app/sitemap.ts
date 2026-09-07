@@ -1,9 +1,9 @@
 import type { MetadataRoute } from 'next'
+import { discoverCityPageFolders } from '@/lib/city-pages'
+import { SITE_URL } from '@/lib/site'
 import { createStaticClient } from '@/lib/supabase/server'
 import { stateSlug, citySlug } from '@/lib/utils'
 import { TREATMENT_SLUGS } from '@/lib/types'
-
-const SITE_URL = 'https://www.ivtherapyclinicfinder.com'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const supabase = createStaticClient()
@@ -13,6 +13,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${SITE_URL}/iv-therapy-clinics`, lastModified: new Date(), changeFrequency: 'daily', priority: 0.9 },
     { url: `${SITE_URL}/submit`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.5 },
   ]
+
+  for (const folder of discoverCityPageFolders()) {
+    urls.push({
+      url: `${SITE_URL}/best/${folder}`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
+      priority: 0.8,
+    })
+  }
 
   // Treatment pages
   for (const slug of Object.keys(TREATMENT_SLUGS)) {

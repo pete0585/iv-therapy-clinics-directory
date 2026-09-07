@@ -2,11 +2,12 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { ArrowRight, Star } from 'lucide-react'
 import { getFeaturedListingsByCity } from '@/lib/data'
+import { cityPageCanonical } from '@/lib/site'
 
 export const metadata: Metadata = {
   title: 'Best IV Therapy Clinics in Phoenix, AZ — Top IV Drip Services',
   description: 'The best IV therapy clinics in Phoenix and Scottsdale, AZ. From Scottsdale wellness centers to Phoenix hydration lounges, Myers\' Cocktail, NAD+, and mobile IV delivery across the Valley.',
-  alternates: { canonical: 'https://www.ivtherapyclinicfinder.com/best/iv-therapy-clinics-in-phoenix-az' },
+  alternates: { canonical: cityPageCanonical('iv-therapy-clinics-in-phoenix-az') },
 }
 
 export const revalidate = 86400

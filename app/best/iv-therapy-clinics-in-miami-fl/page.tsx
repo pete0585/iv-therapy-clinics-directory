@@ -2,10 +2,12 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { ArrowRight, Star } from 'lucide-react'
 import { getFeaturedListingsByCity } from '@/lib/data'
+import { cityPageCanonical } from '@/lib/site'
 
 export const metadata: Metadata = {
   title: 'Best IV Therapy Clinics in Miami, FL — Top-Rated IV Drip Services',
   description: 'The best IV therapy clinics in Miami, Florida — covering Brickell, South Beach, Wynwood, Coral Gables, and mobile IV services serving the greater Miami area.',
+  alternates: { canonical: cityPageCanonical('iv-therapy-clinics-in-miami-fl') },
 }
 
 export default async function BestIVTherapyMiamiPage() {
