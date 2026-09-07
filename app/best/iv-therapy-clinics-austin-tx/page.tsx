@@ -1,10 +1,12 @@
 import type { Metadata } from "next"
 import Link from "next/link"
+import { cityPageCanonical } from "@/lib/site"
 import { createClient } from "@/lib/supabase/server"
 
 export const metadata: Metadata = {
   title: "Best IV Therapy Clinic in Austin, TX | IV Therapy Clinic Directory",
   description: "Find iv therapy clinic in Austin, Texas. 23+ listed. Filter by city and compare providers.",
+  alternates: { canonical: cityPageCanonical("iv-therapy-clinics-austin-tx") },
 }
 
 async function getListings() {

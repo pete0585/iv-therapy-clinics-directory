@@ -2,11 +2,12 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { ArrowRight, Star } from 'lucide-react'
 import { getFeaturedListingsByCity } from '@/lib/data'
+import { cityPageCanonical } from '@/lib/site'
 
 export const metadata: Metadata = {
   title: 'Best IV Therapy Clinics in New York, NY — Top IV Drip Services in NYC',
   description: 'The best IV therapy clinics in New York, NY. From SoHo walk-in IV lounges to Midtown concierge services, NAD+, Myers\' Cocktail, and mobile IV delivery across all five boroughs.',
-  alternates: { canonical: 'https://www.ivtherapyclinicfinder.com/best/iv-therapy-clinics-in-new-york-ny' },
+  alternates: { canonical: cityPageCanonical('iv-therapy-clinics-in-new-york-ny') },
 }
 
 export const revalidate = 86400

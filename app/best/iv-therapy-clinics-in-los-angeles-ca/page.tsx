@@ -2,10 +2,12 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { ArrowRight, Star } from 'lucide-react'
 import { getFeaturedListingsByCity } from '@/lib/data'
+import { cityPageCanonical } from '@/lib/site'
 
 export const metadata: Metadata = {
   title: 'Best IV Therapy Clinics in Los Angeles, CA — Top IV Drip Services in LA',
   description: 'The best IV therapy clinics in Los Angeles, CA — covering Beverly Hills, West Hollywood, Santa Monica, Venice, and mobile IV services across the LA metro.',
+  alternates: { canonical: cityPageCanonical('iv-therapy-clinics-in-los-angeles-ca') },
 }
 
 export default async function BestIVTherapyLosAngelesPage() {

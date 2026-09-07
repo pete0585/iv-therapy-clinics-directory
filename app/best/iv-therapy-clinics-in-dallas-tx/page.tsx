@@ -2,11 +2,12 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { ArrowRight, Star } from 'lucide-react'
 import { getFeaturedListingsByCity } from '@/lib/data'
+import { cityPageCanonical } from '@/lib/site'
 
 export const metadata: Metadata = {
   title: 'Best IV Therapy Clinics in Dallas, TX — Top IV Drip Services',
   description: 'The best IV therapy clinics in Dallas, TX. From Uptown IV lounges to Plano concierge drip services, Myers\' Cocktail, NAD+, and mobile IV delivery across DFW.',
-  alternates: { canonical: 'https://www.ivtherapyclinicfinder.com/best/iv-therapy-clinics-in-dallas-tx' },
+  alternates: { canonical: cityPageCanonical('iv-therapy-clinics-in-dallas-tx') },
 }
 
 export const revalidate = 86400

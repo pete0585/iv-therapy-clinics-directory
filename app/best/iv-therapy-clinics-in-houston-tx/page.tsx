@@ -2,11 +2,12 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { ArrowRight, Star } from 'lucide-react'
 import { getFeaturedListingsByCity } from '@/lib/data'
+import { cityPageCanonical } from '@/lib/site'
 
 export const metadata: Metadata = {
   title: 'Best IV Therapy Clinics in Houston, TX — Top IV Drip Services',
   description: 'The best IV therapy clinics in Houston, TX. From Medical Center IV clinics to Galleria concierge drip services, Myers\' Cocktail, NAD+, and mobile IV delivery across the greater Houston metro.',
-  alternates: { canonical: 'https://www.ivtherapyclinicfinder.com/best/iv-therapy-clinics-in-houston-tx' },
+  alternates: { canonical: cityPageCanonical('iv-therapy-clinics-in-houston-tx') },
 }
 
 export const revalidate = 86400
