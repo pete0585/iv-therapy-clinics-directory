@@ -53,12 +53,22 @@ export default async function HomePage() {
               {totalCount > 0 ? `${totalCount.toLocaleString()}+` : 'Hundreds of'} clinics listed across the US
             </div>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold leading-tight mb-6">
-              Find IV Therapy<br className="hidden md:block" />
-              <span className="text-brand-cyan"> That Works for You</span>
-            </h1>
+            Find trusted IV therapy clinics near you
+          </h1>
             <p className="text-xl text-gray-300 mb-8 max-w-2xl">
-              Compare treatments, pricing, and medical oversight. Myers Cocktail, NAD+, hangover recovery — find the right drip clinic near you.
-            </p>
+            Browse verified IV therapy clinics by treatment type, location, and medical oversight — and connect directly. Free, always.
+          </p>
+          <p className="text-sm text-gray-500 mt-4">
+            Are you a IV therapy clinic?{' '}
+            <a
+              href="https://studiozerohq.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline hover:opacity-80"
+            >
+              List your practice free →
+            </a>
+          </p>
             <SearchHero />
             <div className="flex flex-wrap gap-2 mt-5">
               <QuickFilter href="/iv-therapy-clinics?mobile=true" emoji="🚐" label="Mobile IV Service" />
