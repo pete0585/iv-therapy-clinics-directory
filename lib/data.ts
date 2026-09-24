@@ -21,7 +21,6 @@ export async function getFeaturedListings(limit = 6): Promise<IvTherapyListing[]
     .select('*')
     .eq('is_active', true)
     .eq('is_approved', true)
-    .eq('listing_tier', 'featured')
     .order('listing_tier_rank', { ascending: true })
     .limit(limit)
   return (data ?? []) as IvTherapyListing[]
