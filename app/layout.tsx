@@ -111,7 +111,7 @@ function Footer() {
             <ul className="space-y-2 text-sm">
               <li><Link href="/submit" className="hover:text-brand-cyan transition-colors">Add Your Clinic</Link></li>
               <li><Link href="/iv-therapy-clinics" className="hover:text-brand-cyan transition-colors">Claim Your Listing</Link></li>
-              <li><Link href="/submit#pricing" className="hover:text-brand-cyan transition-colors">Pricing</Link></li>
+              <li></li>
             </ul>
           </div>
         </div>
