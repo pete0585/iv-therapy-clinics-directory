@@ -5,6 +5,7 @@ import { getFeaturedListings, getTotalCount, getTopCities, getStateCounts } from
 import { formatPhone, stateAbbrevToName, stateSlug, citySlug, formatPriceRange } from '@/lib/utils'
 import type { IvTherapyListing } from '@/lib/types'
 import { TREATMENT_SLUGS } from '@/lib/types'
+import NewsletterSignup from '@/components/NewsletterSignup'
 
 export const metadata: Metadata = {
   title: 'IV Therapy Clinic Finder — Find IV Drip Clinics Near You',
