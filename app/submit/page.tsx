@@ -23,6 +23,7 @@ const schema = z.object({
     price_high: z.string().optional(),
     services_offered: z.array(z.string()).optional(),
     booking_url: z.string().url('Enter a valid URL').optional().or(z.literal('')),
+    contact_fax: z.string().max(200).optional(),
 });
 type FormData = z.infer<typeof schema>;
 const US_STATES = [
@@ -65,14 +66,16 @@ export default function SubmitPage() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     ...data,
-                    price_low: data.price_low ? parseInt(data.price_low) : null,
-                    price_high: data.price_high ? parseInt(data.price_high) : null,
+                    price_low: data.price_low ? Number(data.price_low) : null,
+                    price_high: data.price_high ? Number(data.price_high) : null,
                 }),
             });
             if (!res.ok) {
                 const d = await res.json();
                 throw new Error(d.error ?? 'Submission failed');
             }
+            const saved = await res.json();
+            if (saved.success !== true || saved.status !== 'pending_review') throw new Error('Your submission could not be confirmed. Keep your entries and try again.');
             setSubmitted(true);
         }
         catch (e) {
@@ -91,7 +94,7 @@ export default function SubmitPage() {
             </div>
             <h1 className="text-2xl font-bold text-brand-navy mb-3">Listing Submitted!</h1>
             <p className="text-gray-600 mb-6">
-              Your clinic has been submitted and will appear in our directory shortly. Check your email for a link to claim and manage your listing.
+              Your free submission has been saved for review. It is not public yet. No claim email has been sent, and submitting does not verify professional credentials.
             </p>
             <Link href="/" className="btn-primary">Back to Home</Link>
           </div>
@@ -118,6 +121,7 @@ export default function SubmitPage() {
       <div className="page-container py-10">
         <div className="max-w-2xl">
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+          <div hidden aria-hidden="true"><label>Leave blank<input {...register('contact_fax')} tabIndex={-1} autoComplete="off" /></label></div>
             {error && (<div className="bg-red-50 border border-red-200 rounded-xl p-4 text-red-700 text-sm">
                 {error}
               </div>)}
@@ -169,7 +173,7 @@ export default function SubmitPage() {
                   {errors.website && <p className="text-red-500 text-xs mt-1">{errors.website.message}</p>}
                 </div>
                 <div>
-                  <label className="form-label" htmlFor="email">Your Email * (for claim verification)</label>
+                  <label className="form-label" htmlFor="email">Your Email * (for your submission)</label>
                   <input id="email" {...register('email')} className="input-field" placeholder="you@yoursite.com" type="email"/>
                   {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>}
                 </div>
