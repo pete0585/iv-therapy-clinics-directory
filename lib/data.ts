@@ -115,6 +115,8 @@ export async function getListingBySlug(slug: string): Promise<IvTherapyListing |
   const { data } = await supabase
     .from(TABLE)
     .select('*')
+    .eq('is_active', true)
+    .eq('is_approved', true)
     .eq('slug', slug)
     .single()
   return data as IvTherapyListing | null
@@ -125,6 +127,8 @@ export async function getListingById(id: string): Promise<IvTherapyListing | nul
   const { data } = await supabase
     .from(TABLE)
     .select('*')
+    .eq('is_active', true)
+    .eq('is_approved', true)
     .eq('id', id)
     .single()
   return data as IvTherapyListing | null
@@ -193,6 +197,8 @@ export async function getFeaturedListingsByCity(state: string, city: string, lim
   const { data } = await supabase
     .from(TABLE)
     .select('*')
+    .eq('is_active', true)
+    .eq('is_approved', true)
     .ilike('city', city.replace(/-/g, ' '))
     .ilike('state', state)
     .order('listing_tier_rank', { ascending: true })

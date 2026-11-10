@@ -1,87 +1,47 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createServiceClient } from '@/lib/supabase/server'
-import { slugify } from '@/lib/utils'
-import crypto from 'crypto'
+import { createClient } from '@supabase/supabase-js'
+import { sameOrigin } from '@/lib/admin-authorization'
+import { buildListingRow, persistSubmission, submissionSchema } from '@/lib/submission'
 
+export const runtime = 'nodejs'
+export const dynamic = 'force-dynamic'
+const MAX_BYTES = 20000
+const hits = new Map<string, { count: number; expires: number }>()
+const reply = (body: object, status: number) => NextResponse.json(body, { status, headers: { 'Cache-Control': 'no-store' } })
 export async function POST(req: NextRequest) {
-  let body: Record<string, unknown>
   try {
-    body = await req.json()
-  } catch {
-    return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 })
-  }
-
-  const {
-    name, address, city, state, zip, phone, website, email,
-    description, is_mobile, is_clinic, medical_oversight,
-    price_low, price_high, services_offered, booking_url,
-  } = body as Record<string, unknown>
-
-  if (!name || !city || !state || !email) {
-    return NextResponse.json({ error: 'name, city, state, and email are required' }, { status: 400 })
-  }
-
-  const supabase = await createServiceClient()
-
-  // Generate unique slug
-  const baseSlug = slugify(`${name as string} ${city as string} ${state as string}`)
-  let slug = baseSlug
-  let suffix = 0
-
-  while (true) {
-    const { data: existing } = await supabase
-      .from('iv_therapy_clinics_listings')
-      .select('id')
-      .eq('slug', slug)
-      .maybeSingle()
-    if (!existing) break
-    suffix++
-    slug = `${baseSlug}-${suffix}`
-  }
-
-  const { data: listing, error } = await supabase
-    .from('iv_therapy_clinics_listings')
-    .insert({
-      slug,
-      name: name as string,
-      address: address as string | null,
-      city: city as string,
-      state: (state as string).toUpperCase(),
-      zip: zip as string | null,
-      phone: phone as string | null,
-      website: website as string | null,
-      email: email as string,
-      email_source: 'self',
-      description: description as string | null,
-      is_mobile: Boolean(is_mobile),
-      is_clinic: Boolean(is_clinic) || !is_mobile,
-      medical_oversight: medical_oversight as string | null,
-      price_low: price_low ? Number(price_low) : null,
-      price_high: price_high ? Number(price_high) : null,
-      services_offered: Array.isArray(services_offered) ? services_offered : [],
-      booking_url: booking_url as string | null,
-      listing_tier: 'free',
-      listing_tier_rank: 0,
-      is_active: true,
-      is_approved: true,
-    })
-    .select('id')
-    .single()
-
-  if (error || !listing) {
-    return NextResponse.json({ error: 'Failed to create listing' }, { status: 500 })
-  }
-
-  // Auto-create claim token
-  const token = crypto.randomBytes(32).toString('hex')
-  const expiresAt = new Date(Date.now() + 72 * 60 * 60 * 1000).toISOString()
-  await supabase.from('iv_therapy_claims').insert({
-    listing_id: listing.id,
-    email: email as string,
-    token,
-    expires_at: expiresAt,
-    verified: false,
-  })
-
-  return NextResponse.json({ success: true, listing_id: listing.id })
+    if (!sameOrigin(req)) return reply({ error: 'Submit this form from our website.' }, 403)
+    const ip = req.headers.get('x-vercel-forwarded-for') || req.headers.get('x-forwarded-for')?.split(',')[0].trim() || 'unknown'
+    const now = Date.now()
+    for (const [key, value] of hits) if (value.expires <= now) hits.delete(key)
+    if (!hits.has(ip) && hits.size >= 5000) return reply({ error: 'Submissions are busy. Please try again later.' }, 429)
+    const count = hits.get(ip) || { count: 0, expires: now + 3600000 }
+    count.count++; hits.set(ip, count)
+    if (count.count > 5) return reply({ error: 'Too many attempts. Keep your entries and try again later.' }, 429)
+    const reader = req.body?.getReader()
+    if (!reader) return reply({ error: 'Missing submission.' }, 400)
+    const chunks: Uint8Array[] = []; let size = 0
+    for (;;) {
+      const { done, value } = await reader.read(); if (done) break
+      size += value.byteLength
+      if (size > MAX_BYTES) { await reader.cancel(); return reply({ error: 'Submission is too large.' }, 413) }
+      chunks.push(value)
+    }
+    let body: unknown
+    try { body = JSON.parse(Buffer.concat(chunks).toString('utf8')) } catch { return reply({ error: 'Invalid submission format.' }, 400) }
+    const parsed = submissionSchema.safeParse(body)
+    if (!parsed.success) return reply({ error: 'Please check your contact details, location, prices and selected treatments.' }, 400)
+    if (parsed.data.contact_fax) return reply({ error: 'Submission could not be accepted.' }, 400)
+    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) return reply({ error: 'Submissions are temporarily unavailable. Keep your entries and try again later.' }, 503)
+    const db = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY, { auth: { persistSession: false, autoRefreshToken: false } })
+    const recent = await db.from('iv_therapy_clinics_listings').select('id', { head: true, count: 'exact' }).eq('email_source', 'self_submission_pending').gte('created_at', new Date(now - 3600000).toISOString())
+    if (recent.error) return reply({ error: 'Submissions are temporarily unavailable. Keep your entries and try again later.' }, 503)
+    if ((recent.count ?? 0) >= 60) return reply({ error: 'Submissions are busy. Keep your entries and try again later.' }, 429)
+    const row = buildListingRow(parsed.data)
+    const result = await persistSubmission({
+      insert: async value => { const { error } = await db.from('iv_therapy_clinics_listings').insert(value); return { error } },
+      read: async slug => { const { data, error } = await db.from('iv_therapy_clinics_listings').select(Object.keys(row).join(',')).eq('slug', slug).maybeSingle(); return { data: data as unknown as Record<string, unknown> | null, error } },
+    }, row)
+    return reply(result.body, result.status)
+  } catch { return reply({ error: 'We could not confirm your submission. Keep your entries and retry the same submission.' }, 503) }
 }
